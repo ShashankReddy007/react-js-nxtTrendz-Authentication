@@ -3,6 +3,7 @@ import {Component} from 'react'
 import Cookies from 'js-cookie'
 
 import './index.css'
+import {Redirect} from 'react-router-dom'
 
 class LoginForm extends Component {
   state = {username: '', password: '', showSubmitError: false, errorMsg: ''}
@@ -38,12 +39,17 @@ class LoginForm extends Component {
     const data = await response.json()
     if (response.ok === true) {
       this.OnSubmitSuccess(data.jwt_token)
+    } else {
+      this.onSubmitFailure(data.error_msg)
     }
-    this.onSubmitFailure(data.error_msg)
   }
 
   render() {
     const {username, password, showSubmitError, errorMsg} = this.state
+    const jwtToken = Cookies.get('jwt_token')
+    if (jwtToken !== undefined) {
+      return <Redirect to="/" />
+    }
     return (
       <div>
         <form onSubmit={this.submitForm}>
@@ -64,6 +70,7 @@ class LoginForm extends Component {
           />
           <button type="submit">Login</button>
         </form>
+        {showSubmitError && <p>{errorMsg}</p>}
       </div>
     )
   }
